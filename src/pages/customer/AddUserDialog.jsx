@@ -14,12 +14,20 @@ import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { useCreateClientModel } from 'hooks/client.api';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { useQueryClient } from '@tanstack/react-query';
 
-const AddUserDialog = ({ open, handleClose, handleAddUser }) => {
+const AddUserDialog = ({ open, handleClose }) => {
+  const queryClient = useQueryClient();
+  const [validationErrors, setValidationErrors] = useState({
+    errors: {},
+    message: null
+  });
+
   const createClientMutation = useCreateClientModel();
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', phone_number: '' });
   const [image, setImage] = useState(null);
-  const [errors, setErrors] = useState({});
+  // const [errors, setErrors] = useState({});
 
   const handleChangeImage = (e) => {
     const { files } = e.target;
@@ -28,39 +36,46 @@ const AddUserDialog = ({ open, handleClose, handleAddUser }) => {
   };
   const handleChange = (e) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
+    setValidationErrors({
+      errors: {},
+      message: null
+    });
   };
 
-  const validate = () => {
-    let tempErrors = {};
-    tempErrors.name = newUser.name ? '' : 'This field is required.';
-    tempErrors.email = newUser.email ? '' : 'This field is required.';
-    tempErrors.password = newUser.password ? '' : 'This field is required.';
-    tempErrors.phone_number = newUser.phone_number ? '' : 'This field is required.';
-    setErrors(tempErrors);
-    return Object.values(tempErrors).every((x) => x === '');
-  };
+  // const validate = () => {
+  //   let tempErrors = {};
+  //   tempErrors.name = newUser.name ? '' : 'This field is required.';
+  //   tempErrors.email = newUser.email ? '' : 'This field is required.';
+  //   tempErrors.password = newUser.password ? '' : 'This field is required.';
+  //   tempErrors.phone_number = newUser.phone_number ? '' : 'This field is required.';
+  //   setErrors(tempErrors);
+  //   return Object.values(tempErrors).every((x) => x === '');
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      try {
-        const formData = new FormData();
-        for (const key in newUser) {
-          formData.append(key, newUser[key]);
-        }
-        if (image) {
-          // formData.append('image', image, image.name); // Append image with its filename
-        }
-        await createClientMutation.mutateAsync(formData);
-        handleAddUser(newUser);
-        handleClose();
-      } catch (error) {
-        if (error.response && error.response.data) {
-          const errorsObject = error.response.data;
-          console.error('errorsObject: ', errorsObject);
-        } else {
-          console.error('Error occurred without response data:', error);
-        }
+    setValidationErrors({
+      errors: null,
+      message: null
+    });
+    try {
+      const formData = new FormData();
+      for (const key in newUser) {
+        formData.append(key, newUser[key]);
+      }
+      if (image) {
+        // formData.append('image', image, image.name); // Append image with its filename
+      }
+      await createClientMutation.mutateAsync(formData);
+      queryClient.invalidateQueries();
+      handleClose();
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorsObject = error.response.data;
+        setValidationErrors(errorsObject);
+        console.error('errorsObject: ', errorsObject);
+      } else {
+        console.error('Error occurred without response data:', error);
       }
     }
   };
@@ -82,8 +97,8 @@ const AddUserDialog = ({ open, handleClose, handleAddUser }) => {
                 variant="outlined"
                 value={newUser.name}
                 onChange={handleChange}
-                helperText={errors.name}
-                error={!!errors.name}
+                helperText={validationErrors?.errors?.name}
+                error={validationErrors?.errors?.name}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -103,8 +118,8 @@ const AddUserDialog = ({ open, handleClose, handleAddUser }) => {
                 variant="outlined"
                 value={newUser.email}
                 onChange={handleChange}
-                helperText={errors.email}
-                error={!!errors.email}
+                helperText={validationErrors?.errors?.email}
+                error={validationErrors?.errors?.email}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -124,8 +139,8 @@ const AddUserDialog = ({ open, handleClose, handleAddUser }) => {
                 variant="outlined"
                 value={newUser.password}
                 onChange={handleChange}
-                helperText={errors.password}
-                error={!!errors.password}
+                helperText={validationErrors?.errors?.password}
+                error={validationErrors?.errors?.password}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -145,8 +160,8 @@ const AddUserDialog = ({ open, handleClose, handleAddUser }) => {
                 variant="outlined"
                 value={newUser.phone_number}
                 onChange={handleChange}
-                helperText={errors.phone_number}
-                error={!!errors.phone_number}
+                helperText={validationErrors?.errors?.phone_number}
+                error={validationErrors?.errors?.phone_number}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -164,6 +179,7 @@ const AddUserDialog = ({ open, handleClose, handleAddUser }) => {
                     Upload Image
                   </Button>
                 </label>
+                {validationErrors?.errors?.image && <p>{validationErrors?.errors?.image}</p>}
                 {image && <p>{image.name}</p>}
               </Grid>
             </Grid>
@@ -174,9 +190,9 @@ const AddUserDialog = ({ open, handleClose, handleAddUser }) => {
         <Button onClick={handleClose} color="secondary" variant="outlined">
           Cancel
         </Button>
-        <Button type="submit" color="primary" variant="contained" onClick={handleSubmit}>
+        <LoadingButton type="submit" color="primary" variant="contained" onClick={handleSubmit} loading={createClientMutation?.isPending}>
           Add
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

@@ -21,7 +21,7 @@ function PlaceList({ searchText }) {
   const [rows, setRows] = useState([]);
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [currentEditPlace, setCurrentEditPlace] = useState(null);
+  const [currentEditPlaceId, setCurrentEditPlaceId] = useState(null);
 
   useEffect(() => {
     if (places) {
@@ -52,7 +52,7 @@ function PlaceList({ searchText }) {
   };
 
   const handleEditClick = (place) => {
-    setCurrentEditPlace(place);
+    setCurrentEditPlaceId(place);
     setOpenEditDialog(true);
   };
 
@@ -147,11 +147,12 @@ function PlaceList({ searchText }) {
         <DataGrid rows={rows} columns={columns} pageSize={5} rowsPerPageOptions={[5]} checkboxSelection disableSelectionOnClick />
       </Box>
       <AddPlaceDialog open={openAddDialog} handleClose={handleCloseAddDialog} handleAddPlace={handleAddPlace} />
-      {currentEditPlace && (
+      {console.log(currentEditPlaceId)}
+      {currentEditPlaceId && (
         <EditPlaceDialog
           open={openEditDialog}
           handleClose={handleCloseEditDialog}
-          place={currentEditPlace}
+          placeId={currentEditPlaceId}
           handleEditPlace={handleEditPlace}
         />
       )}

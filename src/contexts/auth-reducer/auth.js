@@ -1,15 +1,14 @@
-// action - state management
-import { REGISTER, LOGIN, LOGOUT } from './actions';
+// auth.js
+import { REGISTER, LOGIN, LOGOUT, FAKE_LOGIN } from './actions';
 
-// initial state
+// Initial state
 export const initialState = {
   isLoggedIn: false,
   isInitialized: false,
   user: null
 };
 
-// ==============================|| AUTH REDUCER ||============================== //
-
+// Auth reducer
 const auth = (state = initialState, action) => {
   switch (action.type) {
     case REGISTER: {
@@ -34,6 +33,16 @@ const auth = (state = initialState, action) => {
         isInitialized: true,
         isLoggedIn: false,
         user: null
+      };
+    }
+    case FAKE_LOGIN: {
+      // Handling fake login
+      const { user } = action.payload;
+      return {
+        ...state,
+        isLoggedIn: true,
+        isInitialized: true,
+        user
       };
     }
     default: {

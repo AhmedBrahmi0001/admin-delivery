@@ -9,9 +9,11 @@ import Typography from '@mui/material/Typography';
 import AuthWrapper from './AuthWrapper';
 import AuthLogin from './auth-forms/AuthLogin';
 
+
 // ================================|| LOGIN ||================================ //
 
 export default function Login() {
+
   return (
     <AuthWrapper>
       <Grid container spacing={3}>

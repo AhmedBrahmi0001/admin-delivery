@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
-import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
-// material-ui
+// material-ui imports
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
@@ -23,24 +23,57 @@ import { Formik } from 'formik';
 
 // project import
 import AnimateButton from 'components/@extended/AnimateButton';
+import FirebaseSocial from './FirebaseSocial';
+import { useLogin } from 'hooks/auth.api';
 
 // assets
 import EyeOutlined from '@ant-design/icons/EyeOutlined';
 import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
-import FirebaseSocial from './FirebaseSocial';
 
-// ============================|| JWT - LOGIN ||============================ //
-
-export default function AuthLogin({ isDemo = false }) {
+export default function AuthLogin({ isDemo }) {
+  console.log(isDemo);
+  const loginMutation = useLogin();
+  const navigate = useNavigate();
   const [checked, setChecked] = React.useState(false);
-
   const [showPassword, setShowPassword] = React.useState(false);
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
+  };
+
+  const [formErrors, setFormErrors] = useState({
+    errors: null
+  });
+
+  const handleSubmit = async (values, { setErrors, setSubmitting }) => {
+    setFormErrors({
+      errors: null
+    });
+    try {
+      const res = await loginMutation.mutateAsync(values);
+      const user = {
+        id: res?.data?.id,
+        email: res?.data?.email,
+        role: res?.data?.role,
+        token: res?.data?.accessToken
+      };
+
+      localStorage.setItem('user', JSON.stringify(user));
+      navigate('/dashboard');
+      console.log(setErrors);
+      setSubmitting(false);
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorsObject = error.response.data;
+        setFormErrors(errorsObject);
+      } else {
+        console.error('Error occurred without response data:', error);
+      }
+    }
   };
 
   return (
@@ -55,6 +88,7 @@ export default function AuthLogin({ isDemo = false }) {
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
           password: Yup.string().max(255).required('Password is required')
         })}
+        onSubmit={handleSubmit}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit}>
@@ -77,6 +111,11 @@ export default function AuthLogin({ isDemo = false }) {
                 {touched.email && errors.email && (
                   <FormHelperText error id="standard-weight-helper-text-email-login">
                     {errors.email}
+                  </FormHelperText>
+                )}
+                {!formErrors?.status && (
+                  <FormHelperText error id="standard-weight-helper-text-email-login">
+                    Email or password is wrong
                   </FormHelperText>
                 )}
               </Grid>
@@ -127,9 +166,9 @@ export default function AuthLogin({ isDemo = false }) {
                         size="small"
                       />
                     }
-                    label={<Typography variant="h6">Keep me sign in</Typography>}
+                    label={<Typography variant="h6">Keep me signed in</Typography>}
                   />
-                  <Link variant="h6" component={RouterLink} color="text.primary">
+                  <Link variant="h6" component={RouterLink} to="/forgot-password" color="text.primary">
                     Forgot Password?
                   </Link>
                 </Stack>
@@ -141,14 +180,22 @@ export default function AuthLogin({ isDemo = false }) {
               )}
               <Grid item xs={12}>
                 <AnimateButton>
-                  <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
+                  <Button
+                    disableElevation
+                    disabled={isSubmitting || loginMutation?.isPending}
+                    fullWidth
+                    size="large"
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                  >
                     Login
                   </Button>
                 </AnimateButton>
               </Grid>
               <Grid item xs={12}>
                 <Divider>
-                  <Typography variant="caption"> Login with</Typography>
+                  <Typography variant="caption">Login with</Typography>
                 </Divider>
               </Grid>
               <Grid item xs={12}>
@@ -162,4 +209,6 @@ export default function AuthLogin({ isDemo = false }) {
   );
 }
 
-AuthLogin.propTypes = { isDemo: PropTypes.bool };
+AuthLogin.propTypes = {
+  isDemo: PropTypes.bool
+};

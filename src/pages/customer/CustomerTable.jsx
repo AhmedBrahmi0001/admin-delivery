@@ -24,16 +24,10 @@ function UserList({ searchText }) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [currentEditUser, setCurrentEditUser] = useState(null);
   const navigate = useNavigate();
-  const [status, setStatus] = React.useState('-1');
+  const [status, setStatus] = React.useState('');
   const handleStatusChange = (event) => {
     setStatus(event.target.value);
   };
-
-  useEffect(() => {
-    if (clients) {
-      setRows(clients.data);
-    }
-  }, [clients]);
 
   useEffect(() => {
     if (clients) {

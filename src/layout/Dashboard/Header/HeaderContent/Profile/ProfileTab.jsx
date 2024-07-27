@@ -50,12 +50,12 @@ export default function ProfileTab() {
         </ListItemIcon>
         <ListItemText primary="Billing" />
       </ListItemButton>
-      <ListItemButton selected={selectedIndex === 2}>
+      {/* <ListItemButton selected={selectedIndex === 2}>
         <ListItemIcon>
           <LogoutOutlined />
         </ListItemIcon>
         <ListItemText primary="Logout" />
-      </ListItemButton>
+      </ListItemButton> */}
     </List>
   );
 }

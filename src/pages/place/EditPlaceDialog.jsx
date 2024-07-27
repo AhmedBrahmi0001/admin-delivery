@@ -8,20 +8,26 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import { useQueryClient } from '@tanstack/react-query';
+import LoadingButton from '@mui/lab/LoadingButton';
 import { useGetPlaceModel, useUpdatePlaceModel } from 'hooks/places.api';
 
 const EditPlaceDialog = ({ open, handleClose, placeId }) => {
+  const queryClient = useQueryClient();
+  const [validationErrors, setValidationErrors] = useState({
+    errors: {},
+    message: null
+  });
   const { data: placeData, isSuccess: placeDataSuccess } = useGetPlaceModel(placeId);
   const [newPlace, setNewPlace] = useState({
     name: '',
     description: ''
   });
-  const [formErrors, setFormErrors] = useState({});
+  // const [formErrors, setFormErrors] = useState({});
   const editPlaceMutation = useUpdatePlaceModel();
 
   const handleChange = (e) => {
     setNewPlace({ ...newPlace, [e.target.name]: e.target.value });
-    setFormErrors({});
   };
 
   const handleSubmit = async (e) => {
@@ -29,19 +35,21 @@ const EditPlaceDialog = ({ open, handleClose, placeId }) => {
 
     try {
       const formData = new FormData();
-      for (const key in newDriver) {
-        formData.append(key, newDriver[key]);
+      for (const key in newPlace) {
+        formData.append(key, newPlace[key]);
       }
       await editPlaceMutation.mutateAsync({
         placeId: placeId,
-        values: newPlace
+        values: formData
       });
+      queryClient.invalidateQueries();
       handleClose();
     } catch (error) {
       if (error.response && error.response.data) {
         const errorsObject = error.response.data;
+        setValidationErrors(errorsObject);
         console.error('errorsObject: ', errorsObject);
-        setFormErrors(errorsObject);
+        // setFormErrors(errorsObject);
       } else {
         console.error('Error occurred without response data:', error);
       }
@@ -60,8 +68,8 @@ const EditPlaceDialog = ({ open, handleClose, placeId }) => {
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>Edit Place</DialogTitle>
-      <DialogContent>
-        <Box component="form" onSubmit={handleSubmit} noValidate>
+      <Box component="form" onSubmit={handleSubmit} noValidate>
+        <DialogContent>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -74,8 +82,8 @@ const EditPlaceDialog = ({ open, handleClose, placeId }) => {
                 variant="outlined"
                 value={newPlace.name}
                 onChange={handleChange}
-                helperText={formErrors?.errors?.name}
-                error={!!formErrors?.errors?.name}
+                helperText={validationErrors?.errors?.name}
+                error={validationErrors?.errors?.name}
               />
             </Grid>
             <Grid item xs={12}>
@@ -88,21 +96,21 @@ const EditPlaceDialog = ({ open, handleClose, placeId }) => {
                 variant="outlined"
                 value={newPlace.description}
                 onChange={handleChange}
-                helperText={formErrors?.errors?.description}
-                error={!!formErrors?.errors?.description}
+                helperText={validationErrors?.errors?.description}
+                error={validationErrors?.errors?.description}
               />
             </Grid>
           </Grid>
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="secondary" variant="outlined">
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit} color="primary" variant="contained">
-          Save
-        </Button>
-      </DialogActions>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="secondary" variant="outlined">
+            Cancel
+          </Button>
+          <LoadingButton type="submit" color="primary" variant="contained" loading={editPlaceMutation?.isPending}>
+            Save
+          </LoadingButton>
+        </DialogActions>
+      </Box>
     </Dialog>
   );
 };
