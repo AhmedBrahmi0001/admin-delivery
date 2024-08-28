@@ -9,9 +9,9 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import InputAdornment from '@mui/material/InputAdornment';
-import PersonIcon from '@mui/icons-material/Person';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useCreatePlaceModel } from 'hooks/places.api';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 const AddPlaceDialog = ({ open, handleClose, handleAddPlace }) => {
   const createPlaceMutation = useCreatePlaceModel();
@@ -66,7 +66,7 @@ const AddPlaceDialog = ({ open, handleClose, handleAddPlace }) => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <PersonIcon />
+                      <LocationOnIcon />
                     </InputAdornment>
                   )
                 }}
@@ -87,7 +87,7 @@ const AddPlaceDialog = ({ open, handleClose, handleAddPlace }) => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LocationOnIcon />
+                      <DescriptionIcon />
                     </InputAdornment>
                   )
                 }}

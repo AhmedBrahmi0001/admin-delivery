@@ -70,7 +70,7 @@ const EditUserDialog = ({ open, handleClose, user }) => {
   };
   return (
     <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Edit User</DialogTitle>
+      <DialogTitle>Edit Client</DialogTitle>
       <Box component="form" onSubmit={handleSubmit} noValidate>
         <DialogContent>
           <TextField

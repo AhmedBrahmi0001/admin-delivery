@@ -12,15 +12,9 @@ import Typography from '@mui/material/Typography';
 import DatePicker from '@mui/lab/DatePicker';
 
 export default function OrdersFilters({ onSearch, onFilter }) {
-  const [location, setLocation] = React.useState('');
   const [status, setStatus] = React.useState('');
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
-
-  const handleLocationChange = (event) => {
-    setLocation(event.target.value);
-    onFilter({ location: event.target.value, status, startDate, endDate });
-  };
 
   const handleStatusChange = (event) => {
     setStatus(event.target.value);
@@ -57,16 +51,7 @@ export default function OrdersFilters({ onSearch, onFilter }) {
             onChange={(e) => onSearch(e.target.value)}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
-          <TextField
-            label="Location"
-            value={location}
-            onChange={handleLocationChange}
-            variant="outlined"
-            fullWidth
-            sx={{ mb: 2, boxShadow: 1 }}
-          />
-        </Grid>
+
         <Grid item xs={12} md={6}>
           <Select value={status} onChange={handleStatusChange} displayEmpty fullWidth variant="outlined" sx={{ mb: 2, boxShadow: 1 }}>
             <MenuItem value="">

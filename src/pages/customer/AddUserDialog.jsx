@@ -82,7 +82,7 @@ const AddUserDialog = ({ open, handleClose }) => {
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add New User</DialogTitle>
+      <DialogTitle>Add New Client</DialogTitle>
       <DialogContent>
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={2}>

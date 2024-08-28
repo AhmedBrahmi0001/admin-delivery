@@ -41,7 +41,7 @@ const dashboard = {
 
     {
       id: 'customer-list',
-      title: 'User List',
+      title: 'Client List',
       type: 'item',
       url: '/customer/list',
       icon: icons.UserOutlined
