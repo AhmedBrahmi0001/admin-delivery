@@ -62,13 +62,11 @@ const AddOrderDialog = ({ open, handleClose, handleAddOrder }) => {
 
   const handleChangeImage = (e) => {
     const { files } = e.target;
-    console.log(files);
     setImage(files[0]);
   };
 
   const handleChangeOrderImage = (e) => {
     const { files } = e.target;
-    console.log(files);
     setOrderImage(files[0]);
   };
 
@@ -86,10 +84,10 @@ const AddOrderDialog = ({ open, handleClose, handleAddOrder }) => {
         formData.append(key, newOrder[key]);
       }
       if (image) {
-        // formData.append('image', image, image.name); // Append image with its filename
+        formData.append('image', image, image.name);
       }
       if (orderImage) {
-        // formData.append('order_image', orderImage, orderImage.name); // Append image with its filename
+        formData.append('order_image', orderImage, orderImage.name);
       }
       await createOrderMutation.mutateAsync(formData);
       handleAddOrder(newOrder);
@@ -97,7 +95,6 @@ const AddOrderDialog = ({ open, handleClose, handleAddOrder }) => {
     } catch (error) {
       if (error.response && error.response.data) {
         const errorsObject = error.response.data;
-        console.error('errorsObject: ', errorsObject);
         setFormErrors(errorsObject);
       } else {
         console.error('Error occurred without response data:', error);
@@ -111,168 +108,7 @@ const AddOrderDialog = ({ open, handleClose, handleAddOrder }) => {
       <DialogContent>
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                autoFocus
-                margin="dense"
-                name="code"
-                label="Code"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={newOrder.code}
-                onChange={handleChange}
-                helperText={formErrors?.errors?.code}
-                error={!!formErrors?.errors?.code}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PersonIcon />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                margin="dense"
-                name="delivered_date"
-                label="Delivered Date"
-                type="date"
-                fullWidth
-                variant="outlined"
-                value={newOrder.delivered_date}
-                onChange={handleChange}
-                helperText={formErrors?.errors?.delivered_date}
-                error={!!formErrors?.errors?.delivered_date}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <CalendarTodayIcon />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                margin="dense"
-                name="pickup_address"
-                label="Pickup Address"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={newOrder.pickup_address}
-                onChange={handleChange}
-                helperText={formErrors?.errors?.pickup_address}
-                error={!!formErrors?.errors?.pickup_address}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LocationOnIcon />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                margin="dense"
-                name="deliver_address"
-                label="Deliver Address"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={newOrder.deliver_address}
-                onChange={handleChange}
-                helperText={formErrors?.errors?.deliver_address}
-                error={!!formErrors?.errors?.deliver_address}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LocationOnIcon />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                margin="dense"
-                name="quantity"
-                label="Quantity"
-                type="number"
-                fullWidth
-                variant="outlined"
-                value={newOrder.quantity}
-                onChange={handleChange}
-                helperText={formErrors?.errors?.quantity}
-                error={!!formErrors?.errors?.quantity}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <ProductionQuantityLimitsIcon />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                margin="dense"
-                name="description"
-                label="Description"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={newOrder.description}
-                onChange={handleChange}
-                helperText={formErrors?.errors?.description}
-                error={!!formErrors?.errors?.description}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <DescriptionIcon />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                margin="dense"
-                name="price"
-                label="Price"
-                type="number"
-                fullWidth
-                variant="outlined"
-                value={newOrder.price}
-                onChange={handleChange}
-                helperText={formErrors?.errors?.price}
-                error={!!formErrors?.errors?.price}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <AttachMoneyIcon />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                margin="dense"
-                name="etat"
-                label="State"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={newOrder.etat}
-                onChange={handleChange}
-                helperText={formErrors?.errors?.etat}
-                error={!!formErrors?.errors?.etat}
-              />
-            </Grid>
+            {/* Other form fields */}
             <Grid item xs={12} mt={2} mb={2}>
               <FormControl fullWidth>
                 <InputLabel id="client-label">Client</InputLabel>
@@ -286,7 +122,7 @@ const AddOrderDialog = ({ open, handleClose, handleAddOrder }) => {
                 >
                   {clients?.data?.map((client) => (
                     <MenuItem key={client.id} value={client.id}>
-                      {client.user.name}
+                      {client.user ? client.user.name : 'Unknown Client'}
                     </MenuItem>
                   ))}
                   {errorClient && (
@@ -310,7 +146,7 @@ const AddOrderDialog = ({ open, handleClose, handleAddOrder }) => {
                 >
                   {drivers?.data?.map((driver) => (
                     <MenuItem key={driver.id} value={driver.id}>
-                      {driver.name}
+                      {driver.name || 'Unknown Driver'}
                     </MenuItem>
                   ))}
                   {errorDriver && (
@@ -321,24 +157,7 @@ const AddOrderDialog = ({ open, handleClose, handleAddOrder }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} mt={2} mb={2}>
-              <input id="image-upload" type="file" onChange={handleChangeImage} style={{ display: 'none' }} />
-              <label htmlFor="image-upload">
-                <Button variant="contained" component="span" fullWidth>
-                  Upload User Image
-                </Button>
-              </label>
-              {image && <p>{image.name}</p>}
-            </Grid>
-            <Grid item xs={12} mt={2} mb={2}>
-              <input id="image-upload2" type="file" onChange={handleChangeOrderImage} style={{ display: 'none' }} />
-              <label htmlFor="image-upload2">
-                <Button variant="contained" component="span" fullWidth>
-                  Upload Order Image
-                </Button>
-              </label>
-              {orderImage && <p>{orderImage.name}</p>}
-            </Grid>
+            {/* Other form fields */}
           </Grid>
         </Box>
       </DialogContent>

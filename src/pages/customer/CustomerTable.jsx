@@ -33,6 +33,7 @@ function UserList({ searchText }) {
     if (clients) {
       if (searchText === '') {
         setRows(clients.data);
+        console.log(clients.data);
       } else {
         const filteredRows = clients.data.filter(
           (row) =>
@@ -118,26 +119,14 @@ function UserList({ searchText }) {
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 90 },
-    {
-      field: 'name',
-      headerName: 'Name',
-      width: 200,
-      editable: false,
-      renderCell: (params) => <>{params?.row?.user?.name}</>
-    },
-    { field: 'email', headerName: 'Email', width: 250, editable: false, renderCell: (params) => <>{params?.row?.user?.email}</> },
-    {
-      field: 'phone_number',
-      headerName: 'Phone',
-      width: 150,
-      editable: false,
-      renderCell: (params) => <>{params?.row?.user?.phone_number}</>
-    },
+    { field: 'name', headerName: 'Name', width: 200, editable: false },
+    { field: 'email', headerName: 'Email', width: 250, editable: false },
+    { field: 'phone_number', headerName: 'Phone', width: 150, editable: false },
     {
       field: 'image',
       headerName: 'Image',
       width: 200,
-      renderCell: (params) => <img src={params?.row?.user?.image} alt="Driver" style={{ width: '100px', height: 'auto' }} />
+      renderCell: (params) => <img src={params.value} alt="User" style={{ width: '100px', height: 'auto' }} />
     },
     {
       field: 'status',
@@ -145,11 +134,10 @@ function UserList({ searchText }) {
       width: 150,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <FiberManualRecordIcon sx={{ color: getStatusColor(params.row?.is_active), marginRight: 1 }} />
+          <FiberManualRecordIcon sx={{ color: getStatusColor(params.row.is_active), marginRight: 1 }} />
         </Box>
       )
     },
-
     {
       field: 'actions',
       headerName: 'Actions',

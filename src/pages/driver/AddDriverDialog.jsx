@@ -18,6 +18,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import { useCreateDriverModel } from '../../hooks/driver.api';
 import { usePlaceModels } from 'hooks/places.api';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import axiosClient from 'axiosClient';
 
 const AddDriverDialog = ({ open, handleClose, handleAddDriver }) => {
   const { data: places, error, isLoading } = usePlaceModels();
@@ -36,15 +37,17 @@ const AddDriverDialog = ({ open, handleClose, handleAddDriver }) => {
   const createDriverMutation = useCreateDriverModel();
 
   const handleChangeImage = (e) => {
-    const { files } = e.target;
-    console.log(files);
-    setImage(files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+    }
   };
 
   const handleChangeDriverImage = (e) => {
-    const { files } = e.target;
-    console.log(files);
-    setDriverImage(files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setDriverImage(file);
+    }
   };
 
   const handleChange = (e) => {
@@ -57,16 +60,36 @@ const AddDriverDialog = ({ open, handleClose, handleAddDriver }) => {
 
     try {
       const formData = new FormData();
+
+      // Append non-file data
       for (const key in newDriver) {
         formData.append(key, newDriver[key]);
       }
+
+      // Append files only if they exist
       if (image) {
-        // formData.append('image', image, image.name); // Append image with its filename
+        formData.append('image', image);
       }
       if (driverImage) {
-        // formData.append('driver_image', driverImage, driverImage.name); // Append image with its filename
+        formData.append('driver_image', driverImage);
       }
-      await createDriverMutation.mutateAsync(formData);
+
+      // Debugging: Log formData entries
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}: ${value.name}`);
+        } else {
+          console.log(`${key}: ${value}`);
+        }
+      }
+      const response = await axiosClient.post('/drivers', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log(response);
+      // Replace with your API call
+      // await createDriverMutation.mutateAsync(formData);
       handleAddDriver(newDriver);
       handleClose();
     } catch (error) {
@@ -174,15 +197,22 @@ const AddDriverDialog = ({ open, handleClose, handleAddDriver }) => {
                   />
                 </Grid>
                 <Grid item xs={12} mt={2} mb={2}>
-                  <Grid item xs={12}>
-                    <input id="image-upload" type="file" onChange={handleChangeImage} style={{ display: 'none' }} />
-                    <label htmlFor="image-upload">
-                      <Button variant="contained" component="span" fullWidth>
-                        Upload User Image
-                      </Button>
-                    </label>
-                    {image && <p>{image.name}</p>}
-                  </Grid>
+                  <input id="image-upload" type="file" accept="image/*" onChange={handleChangeImage} style={{ display: 'none' }} />
+                  <label htmlFor="image-upload">
+                    <Button variant="contained" component="span" fullWidth>
+                      Upload User Image
+                    </Button>
+                  </label>
+                  {image && <p>{image.name}</p>}
+                </Grid>
+                <Grid item xs={12} mt={2} mb={2}>
+                  <input id="image-upload2" type="file" accept="image/*" onChange={handleChangeDriverImage} style={{ display: 'none' }} />
+                  <label htmlFor="image-upload2">
+                    <Button variant="contained" component="span" fullWidth>
+                      Upload Driver Image
+                    </Button>
+                  </label>
+                  {driverImage && <p>{driverImage.name}</p>}
                 </Grid>
               </Grid>
               <Grid item xs={12}>
@@ -227,7 +257,7 @@ const AddDriverDialog = ({ open, handleClose, handleAddDriver }) => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} mt={2} mb={2}>
+            {/* <Grid item xs={12} mt={2} mb={2}>
               <Grid item xs={12}>
                 <input id="image-upload2" type="file" onChange={handleChangeDriverImage} style={{ display: 'none' }} />
                 <label htmlFor="image-upload2">
@@ -237,7 +267,7 @@ const AddDriverDialog = ({ open, handleClose, handleAddDriver }) => {
                 </label>
                 {driverImage && <p>{driverImage.name}</p>}
               </Grid>
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} mt={2} mb={2}>
               <FormControl fullWidth>
                 <InputLabel id="place-label">Place</InputLabel>

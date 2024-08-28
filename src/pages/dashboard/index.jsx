@@ -29,6 +29,8 @@ import avatar1 from 'assets/images/users/avatar-1.png';
 import avatar2 from 'assets/images/users/avatar-2.png';
 import avatar3 from 'assets/images/users/avatar-3.png';
 import avatar4 from 'assets/images/users/avatar-4.png';
+import axiosClient from 'axiosClient';
+import { useEffect, useState } from 'react';
 
 // avatar style
 const avatarSX = {
@@ -50,24 +52,52 @@ const actionSX = {
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
 export default function DashboardDefault() {
+  const [totalDrivers, setTotalDrivers] = useState(0);
+  const [driverPercentage, setDriverPercentage] = useState(0);
+  const [driverExtra, setDriverExtra] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [orderPercentage, setOrderPercentage] = useState(0);
+  const [orderExtra, setOrderExtra] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosClient.get('/dashboard');
+        const response2 = await axiosClient.get('/weekly-statistics');
+
+        setTotalDrivers(response.data.total_drivers);
+        setDriverPercentage(response.data.driver_percentage);
+        setDriverExtra(response.data.driver_extra);
+        setTotalRevenue(response2.data.total_revenue);
+        setTotalOrders(response.data.total_orders);
+        setOrderPercentage(response.data.order_percentage);
+        setOrderExtra(response.data.order_extra);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       {/* row 1 */}
       <Grid item xs={12} sx={{ mb: -2.25 }}>
         <Typography variant="h5">Dashboard</Typography>
       </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Page Views" count="4,42,236" percentage={59.3} extra="35,000" />
+      <Grid item xs={12} sm={6} md={6} lg={6}>
+        <AnalyticEcommerce title="Total Order" count={totalOrders} percentage={orderPercentage} extra={orderExtra} />{' '}
       </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Users" count="78,250" percentage={70.5} extra="8,900" />
+      <Grid item xs={12} sm={6} md={6} lg={6}>
+        <AnalyticEcommerce title="Total Drivers" count={totalDrivers} percentage={driverPercentage} extra={driverExtra} />{' '}
       </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
+      {/* <Grid item xs={12} sm={6} md={4} lg={3}>
         <AnalyticEcommerce title="Total Order" count="18,800" percentage={27.4} isLoss color="warning" extra="1,943" />
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <AnalyticEcommerce title="Total Sales" count="$35,078" percentage={27.4} isLoss color="warning" extra="$20,395" />
-      </Grid>
+      </Grid> */}
 
       <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
 
@@ -88,7 +118,7 @@ export default function DashboardDefault() {
               <Typography variant="h6" color="text.secondary">
                 This Week Statistics
               </Typography>
-              <Typography variant="h3">$7,650</Typography>
+              <Typography variant="h3">TND {totalRevenue ?? 0}</Typography>
             </Stack>
           </Box>
           <MonthlyBarChart />

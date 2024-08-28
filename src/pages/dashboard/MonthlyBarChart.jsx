@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-
 // third-party
 import ReactApexChart from 'react-apexcharts';
+import axiosClient from 'axiosClient';
 
 // chart options
 const barChartOptions = {
@@ -41,7 +41,6 @@ const barChartOptions = {
     show: false
   }
 };
-
 // ==============================|| MONTHLY BAR CHART ||============================== //
 
 export default function MonthlyBarChart() {
@@ -50,19 +49,44 @@ export default function MonthlyBarChart() {
   const { primary, secondary } = theme.palette.text;
   const info = theme.palette.info.light;
 
-  const [series] = useState([
-    {
-      data: [80, 95, 70, 42, 65, 55, 78]
-    }
-  ]);
+  const [series, setSeries] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
-  const [options, setOptions] = useState(barChartOptions);
+  const [options, setOptions] = useState({
+    chart: {
+      type: 'bar',
+      height: 365
+    },
+    xaxis: {
+      labels: {
+        style: {
+          colors: []
+        }
+      },
+      categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    },
+    colors: [info]
+  });
 
   useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        const response = await axiosClient.get('/weekly-statistics');
+        console.log(response);
+        const data = response.data;
+        setTotalRevenue(data.total_revenue);
+        setSeries([{ data: data.daily_totals }]);
+      } catch (error) {
+        console.error('Error fetching weekly statistics:', error);
+      }
+    };
+
+    fetchStatistics();
+
     setOptions((prevState) => ({
       ...prevState,
-      colors: [info],
       xaxis: {
+        ...prevState.xaxis,
         labels: {
           style: {
             colors: [secondary, secondary, secondary, secondary, secondary, secondary, secondary]
